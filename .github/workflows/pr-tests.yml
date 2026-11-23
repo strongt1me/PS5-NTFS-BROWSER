@@ -25,7 +25,7 @@ jobs:
           - fix/eject-while-writing
           - fix/delete-release-record-first
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ matrix.ref }}
 
