@@ -24,6 +24,7 @@ jobs:
           - fix/http-host-check
           - fix/eject-while-writing
           - fix/delete-release-record-first
+          - fix/hotplug-settle
     steps:
       - uses: actions/checkout@v7
         with:
@@ -45,3 +46,58 @@ jobs:
       # The tests mount images with ntfs-3g, which needs root.
       - name: make test
         run: sudo make test
+
+  # The same branches built for the console with the PS5 payload SDK, as the
+  # release workflow does, so code that only the host build saw is checked
+  # against the real toolchain too.
+  ps5-build:
+    name: PS5 build (${{ matrix.ref }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      SDK_REF: a7685ce8e97ce1f8a4f38253a41d54241c9124f1
+    strategy:
+      fail-fast: false
+      matrix:
+        ref:
+          - main
+          - fix/reader-bounds
+          - fix/job-use-after-free
+          - fix/copy-into-itself
+          - fix/http-host-check
+          - fix/eject-while-writing
+          - fix/delete-release-record-first
+          - fix/hotplug-settle
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ matrix.ref }}
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 lld-18 wget make
+
+      - name: Cache PS5 payload SDK
+        id: sdk-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/ps5-payload-sdk
+          key: ps5-sdk-${{ env.SDK_REF }}
+
+      - name: Build PS5 payload SDK
+        if: steps.sdk-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/ps5-payload-dev/sdk.git /tmp/sdk
+          git -C /tmp/sdk checkout "$SDK_REF"
+          make -C /tmp/sdk DESTDIR="$HOME/ps5-payload-sdk" install
+
+      - name: Build the payload
+        run: |
+          make clean
+          make ps5 PS5_PAYLOAD_SDK="$HOME/ps5-payload-sdk"
+          ls -l ntfs-browser.elf
+          sha256sum ntfs-browser.elf
+
+      - name: Symbols the payload imports
+        run: nm -D --undefined-only ntfs-browser.elf | awk '{print $NF}' | sort | tr '\n' ' '
