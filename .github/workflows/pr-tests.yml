@@ -1,0 +1,47 @@
+# Runs the project's own test suite (make test) on main and on every branch
+# of the open pull requests, on a GitHub-hosted Linux runner. Lives only on
+# the ci/pr-tests branch of this fork; it is not part of any pull request.
+name: PR tests
+
+on:
+  push:
+    branches: [ci/pr-tests]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: make test (${{ matrix.ref }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        ref:
+          - main
+          - fix/reader-bounds
+          - fix/job-use-after-free
+          - fix/copy-into-itself
+          - fix/http-host-check
+          - fix/eject-while-writing
+          - fix/delete-release-record-first
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.ref }}
+
+      - name: Show the commit under test
+        run: git log --oneline -3
+
+      - name: Install test tools (ntfs-3g, setfattr)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ntfs-3g attr make gcc python3
+
+      - name: Check FUSE
+        run: |
+          sudo modprobe fuse || true
+          ls -l /dev/fuse
+
+      # The tests mount images with ntfs-3g, which needs root.
+      - name: make test
+        run: sudo make test
