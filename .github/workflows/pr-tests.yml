@@ -19,7 +19,6 @@ jobs:
         ref:
           - main
           - fix/reader-limits
-          - fix/index-write-order
     steps:
       - uses: actions/checkout@v7
         with:
@@ -57,7 +56,6 @@ jobs:
         ref:
           - main
           - fix/reader-limits
-          - fix/index-write-order
     steps:
       - uses: actions/checkout@v7
         with:
