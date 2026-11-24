@@ -18,13 +18,12 @@ jobs:
       matrix:
         ref:
           - main
-          - fix/reader-bounds
-          - fix/job-use-after-free
-          - fix/copy-into-itself
-          - fix/http-host-check
           - fix/eject-while-writing
-          - fix/delete-release-record-first
-          - fix/hotplug-settle
+          - fix/worker-stack
+          - fix/long-params
+          - fix/writer-checks
+          - fix/open-writers
+          - fix/extend-guard
     steps:
       - uses: actions/checkout@v7
         with:
@@ -61,13 +60,12 @@ jobs:
       matrix:
         ref:
           - main
-          - fix/reader-bounds
-          - fix/job-use-after-free
-          - fix/copy-into-itself
-          - fix/http-host-check
           - fix/eject-while-writing
-          - fix/delete-release-record-first
-          - fix/hotplug-settle
+          - fix/worker-stack
+          - fix/long-params
+          - fix/writer-checks
+          - fix/open-writers
+          - fix/extend-guard
     steps:
       - uses: actions/checkout@v7
         with:
