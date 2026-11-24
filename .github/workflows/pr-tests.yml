@@ -18,8 +18,10 @@ jobs:
       matrix:
         ref:
           - main
-          - fix/reader-bounds
-          - fix/writer-checks
+          - fix/http-timeouts
+          - fix/no-overwrite
+          - fix/folder-names
+          - fix/hotplug-settle
     steps:
       - uses: actions/checkout@v7
         with:
@@ -56,8 +58,10 @@ jobs:
       matrix:
         ref:
           - main
-          - fix/reader-bounds
-          - fix/writer-checks
+          - fix/http-timeouts
+          - fix/no-overwrite
+          - fix/folder-names
+          - fix/hotplug-settle
     steps:
       - uses: actions/checkout@v7
         with:
